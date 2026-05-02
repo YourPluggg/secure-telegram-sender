@@ -1,0 +1,18 @@
+# IDE
+.idea/
+
+# database
+*.sqlite
+
+# Python
+venv/
+__pycache__/
+*.pyc
+
+# Sensitive
+private_key.pem
+telegram_config.json
+
+# OS
+.DS_Store
+Thumbs.db
