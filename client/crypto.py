@@ -1,65 +1,138 @@
-from cryptography.hazmat.primitives.asymmetric import rsa, padding
-from cryptography.hazmat.primitives import serialization, hashes
-from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+"""
+crypto.py — криптографические примитивы.
+- RSA-OAEP-SHA256 для обмена ключами
+- RSA-PSS-SHA256 для подписи файлов
+- AES-256-GCM для шифрования файлов
+- Шифрование приватного ключа паролем (BestAvailableEncryption)
+"""
+
 import os
+import struct
 
-# RSA
+from cryptography.exceptions import InvalidSignature
+from cryptography.hazmat.primitives import hashes, serialization
+from cryptography.hazmat.primitives.asymmetric import padding, rsa
+from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+
+
+# ── RSA ──────────────────────────────────────────────────────────────────────
+
 def generate_rsa():
-    private = rsa.generate_private_key(
-        public_exponent=65537,
-        key_size=2048
-    )
-    public = private.public_key()
-    return private, public
+    private = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+    return private, private.public_key()
 
-def serialize_public(pub):
+
+def serialize_public(pub) -> str:
     return pub.public_bytes(
         encoding=serialization.Encoding.PEM,
-        format=serialization.PublicFormat.SubjectPublicKeyInfo
+        format=serialization.PublicFormat.SubjectPublicKeyInfo,
     ).decode()
 
-def serialize_private(priv):
+
+def serialize_private(priv, password: bytes | None = None) -> bytes:
+    """
+    Сериализует приватный ключ.
+    Если password задан — шифрует с BestAvailableEncryption (AES-256-CBC + PBKDF2).
+    Если password=None — сохраняет без шифрования (не рекомендуется).
+    """
+    encryption = (
+        serialization.BestAvailableEncryption(password)
+        if password
+        else serialization.NoEncryption()
+    )
     return priv.private_bytes(
         encoding=serialization.Encoding.PEM,
         format=serialization.PrivateFormat.PKCS8,
-        encryption_algorithm=serialization.NoEncryption()
+        encryption_algorithm=encryption,
     )
 
-def load_public(pem):
+
+def load_public(pem: str):
     return serialization.load_pem_public_key(pem.encode())
 
-def load_private(pem):
-    return serialization.load_pem_private_key(pem, password=None)
 
-# AES
-def encrypt_file(data, key):
-    iv = os.urandom(16)
-    cipher = Cipher(algorithms.AES(key), modes.CFB(iv))
-    encryptor = cipher.encryptor()
-    return iv + encryptor.update(data) + encryptor.finalize()
+def load_private(pem: bytes, password: bytes | None = None):
+    """
+    Загружает приватный ключ.
+    password — байты пароля или None для незашифрованного ключа.
+    Выбрасывает ValueError при неверном пароле.
+    """
+    return serialization.load_pem_private_key(pem, password=password)
 
-def decrypt_file(data, key):
-    iv = data[:16]
-    cipher = Cipher(algorithms.AES(key), modes.CFB(iv))
-    decryptor = cipher.decryptor()
-    return decryptor.update(data[16:]) + decryptor.finalize()
 
-# генерация DH ключа
-def generate_session_key():
-    return os.urandom(32)
-
-def rsa_encrypt(pub, data):
+def rsa_encrypt(pub, data: bytes) -> bytes:
     return pub.encrypt(
         data,
-        padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),
-                     algorithm=hashes.SHA256(),
-                     label=None)
+        padding.OAEP(
+            mgf=padding.MGF1(algorithm=hashes.SHA256()),
+            algorithm=hashes.SHA256(),
+            label=None,
+        ),
     )
 
-def rsa_decrypt(priv, data):
+
+def rsa_decrypt(priv, data: bytes) -> bytes:
     return priv.decrypt(
         data,
-        padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),
-                     algorithm=hashes.SHA256(),
-                     label=None)
+        padding.OAEP(
+            mgf=padding.MGF1(algorithm=hashes.SHA256()),
+            algorithm=hashes.SHA256(),
+            label=None,
+        ),
     )
+
+
+# ── RSA-PSS ───────────────────────────────────────────────────────────────────
+
+_PSS_PADDING = padding.PSS(
+    mgf=padding.MGF1(hashes.SHA256()),
+    salt_length=padding.PSS.MAX_LENGTH,
+)
+
+
+def sign_data(priv, data: bytes) -> bytes:
+    return priv.sign(data, _PSS_PADDING, hashes.SHA256())
+
+
+def verify_signature(pub, data: bytes, signature: bytes) -> bool:
+    try:
+        pub.verify(signature, data, _PSS_PADDING, hashes.SHA256())
+        return True
+    except InvalidSignature:
+        return False
+
+
+# ── AES-256-GCM ───────────────────────────────────────────────────────────────
+
+def generate_session_key() -> bytes:
+    return os.urandom(32)
+
+
+def encrypt_file(data: bytes, key: bytes) -> bytes:
+    nonce = os.urandom(12)
+    ct = AESGCM(key).encrypt(nonce, data, None)
+    return nonce + ct
+
+
+def decrypt_file(data: bytes, key: bytes) -> bytes:
+    return AESGCM(key).decrypt(data[:12], data[12:], None)
+
+
+# ── Бинарный пакет ────────────────────────────────────────────────────────────
+# Формат: [4B len(enc_key)][enc_key][4B len(sig)][sig][encrypted...]
+
+def pack_bundle(enc_key: bytes, signature: bytes, encrypted: bytes) -> bytes:
+    return (
+        struct.pack(">I", len(enc_key)) + enc_key
+        + struct.pack(">I", len(signature)) + signature
+        + encrypted
+    )
+
+
+def unpack_bundle(bundle: bytes):
+    off = 0
+    kl = struct.unpack(">I", bundle[off:off + 4])[0]; off += 4
+    enc_key = bundle[off:off + kl]; off += kl
+    sl = struct.unpack(">I", bundle[off:off + 4])[0]; off += 4
+    sig = bundle[off:off + sl]; off += sl
+    return enc_key, sig, bundle[off:]

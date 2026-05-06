@@ -1,0 +1,3 @@
+2026-05-06 20:22:14,838  INFO      New register: username=your_pluggg ip=127.0.0.1
+2026-05-06 20:22:14,842  WARNING   TELEGRAM_BOT_TOKEN не задан — проверка chat_id пропущена
+2026-05-06 20:22:14,867  INFO      Token issued: username=your_pluggg
