@@ -38,30 +38,14 @@ cd project
 
 ---
 
-### 2. Создание виртуального окружения
 
-```bash
-python -m venv venv
-```
 
-#### Windows:
-
-```bash
-venv\Scripts\activate
-```
-
-#### Linux / macOS:
-
-```bash
-source venv/bin/activate
-```
-
----
-
-## Запуск
+## 2. Запуск
 ### Сервер
 ```bash
 cd server
+python -m venv venv
+venv\Scripts\activate
 pip install -r requirements.txt
 python main.py
 ```
@@ -71,6 +55,8 @@ python main.py
 ### Клиент
 ```bash
 cd client
+python -m venv venv
+venv\Scripts\activate
 pip install -r requirements.txt
 python app.py
 ```
@@ -81,11 +67,12 @@ python app.py
  
 ## Настройка
  
-1. **Создайте Telegram-бота** через [@BotFather](https://t.me/BotFather), получите токен.
-2. **Узнайте свой Chat ID** через [@userinfobot](https://t.me/userinfobot).
-3. В клиенте:
-   - Вкладка «Настройки»: введите токен бота → «Сохранить токен»
+1. **Узнайте свой Chat ID** через [@userinfobot](https://t.me/userinfobot).
+2. В клиенте:
    - Введите имя и Chat ID → «Зарегистрировать»
+   
+---
+
 ## Алгоритм работы
  
 ```
