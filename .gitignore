@@ -1,7 +1,7 @@
 # IDE
 .idea/
 
-# database
+# Database
 *.sqlite
 
 # Python
@@ -11,7 +11,13 @@ __pycache__/
 
 # Sensitive
 private_key.pem
+auth_token.txt
+.env
 telegram_config.json
+
+# Logs
+*.log
+server.log
 
 # OS
 .DS_Store
