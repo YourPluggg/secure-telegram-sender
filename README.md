@@ -32,7 +32,7 @@ project/
 ## 1. Клонирование проекта
 
 ```bash
-git clone <your_repo_url>
+git clone https://github.com/YourPluggg/secure-telegram-sender
 cd project
 ```
 
