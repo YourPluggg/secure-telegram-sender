@@ -28,8 +28,9 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel, field_validator
 from telegram_sender import send_file
 from crypto import load_public, verify_signature
-from dotenv import load_dotenv
-load_dotenv()
+if os.path.exists(".env"):
+    from dotenv import load_dotenv
+    load_dotenv()
 
 # ── Логирование ───────────────────────────────────────────────────────────────
 
