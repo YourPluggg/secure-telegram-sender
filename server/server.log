@@ -4,3 +4,15 @@
 2026-05-07 09:07:57,692  INFO      New register: username=Senkas21 ip=127.0.0.1
 2026-05-07 09:07:57,693  WARNING   TELEGRAM_BOT_TOKEN не задан — проверка chat_id пропущена
 2026-05-07 09:07:57,728  INFO      Token issued: username=Senkas21
+2026-05-25 17:24:26,657  INFO      New register: username=your_bayyer ip=127.0.0.1
+2026-05-25 17:24:26,658  WARNING   TELEGRAM_BOT_TOKEN не задан — проверка chat_id пропущена
+2026-05-25 17:24:26,717  INFO      Token issued: username=your_bayyer
+2026-05-25 17:26:36,747  INFO      New register: username=Senkas21 ip=127.0.0.1
+2026-05-25 17:26:36,747  WARNING   TELEGRAM_BOT_TOKEN не задан — проверка chat_id пропущена
+2026-05-25 17:26:36,786  INFO      Token issued: username=Senkas21
+2026-05-25 18:00:44,434  INFO      New register: username=Senkas21 ip=127.0.0.1
+2026-05-25 18:00:49,741  ERROR     Ошибка проверки chat_id 818005791: 
+2026-05-25 18:00:49,781  INFO      Token issued: username=Senkas21
+2026-05-25 18:01:25,070  INFO      New register: username=your_bayyer ip=127.0.0.1
+2026-05-25 18:01:30,370  ERROR     Ошибка проверки chat_id 704827369: 
+2026-05-25 18:01:30,410  INFO      Token issued: username=your_bayyer

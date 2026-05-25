@@ -26,9 +26,10 @@ from fastapi import FastAPI, HTTPException, UploadFile, File, Depends, Request
 from fastapi.responses import JSONResponse
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel, field_validator
-
 from telegram_sender import send_file
 from crypto import load_public, verify_signature
+from dotenv import load_dotenv
+load_dotenv()
 
 # ── Логирование ───────────────────────────────────────────────────────────────
 
@@ -298,7 +299,7 @@ async def send_file_api(
         tmp_path = tmp.name
 
     try:
-        send_file(tmp_path, row["chat_id"],
+        await send_file(tmp_path, row["chat_id"],
                   caption=f"Зашифрованный файл от {sender}")
     finally:
         os.unlink(tmp_path)
