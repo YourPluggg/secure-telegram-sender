@@ -31,7 +31,7 @@ from crypto import (
     verify_signature,
 )
 
-SERVER = "http://127.0.0.1:8000"
+SERVER = "https://secure-telegram-sender-production.up.railway.app"
 PRIVATE_KEY_FILE = "private_key.pem"
 TOKEN_FILE = "auth_token.txt"
 
