@@ -1,9 +1,9 @@
 fastapi==0.104.1
 uvicorn==0.24.0
-pydantic==2.5.0
-python-telegram-bot==20.7
+pydantic==2.5.3
+python-telegram-bot[socks]==20.7
 cryptography==41.0.7
 python-multipart==0.0.6
 PyJWT==2.8.0
-httpx==0.25.2
+httpx[socks]==0.25.2
 python-dotenv==1.0.0
