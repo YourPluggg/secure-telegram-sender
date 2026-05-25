@@ -44,6 +44,7 @@ logging.basicConfig(
 )
 log = logging.getLogger("secure_sender")
 print("TOKEN CHECK:", "OK" if os.getenv("TELEGRAM_BOT_TOKEN") else "NOT FOUND")
+print("ALL ENV:", {k: v for k, v in os.environ.items() if 'TOKEN' in k or 'JWT' in k})
 # ── Конфигурация ──────────────────────────────────────────────────────────────
 
 JWT_SECRET = os.getenv("JWT_SECRET", "change-me-in-production-use-long-random-string")
