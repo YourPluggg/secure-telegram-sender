@@ -33,8 +33,6 @@ if os.path.exists(".env"):
     load_dotenv()
 
 # ── Логирование ───────────────────────────────────────────────────────────────
-log.info("TOKEN CHECK: %s", "OK" if os.getenv("TELEGRAM_BOT_TOKEN") else "NOT FOUND")
-
 
 logging.basicConfig(
     level=logging.INFO,
@@ -45,7 +43,7 @@ logging.basicConfig(
     ],
 )
 log = logging.getLogger("secure_sender")
-
+print("TOKEN CHECK:", "OK" if os.getenv("TELEGRAM_BOT_TOKEN") else "NOT FOUND")
 # ── Конфигурация ──────────────────────────────────────────────────────────────
 
 JWT_SECRET = os.getenv("JWT_SECRET", "change-me-in-production-use-long-random-string")
