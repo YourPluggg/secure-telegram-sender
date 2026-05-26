@@ -49,8 +49,8 @@ print("ALL ENV:", {k: v for k, v in os.environ.items() if 'TOKEN' in k or 'JWT' 
 
 JWT_SECRET = os.getenv("JWT_SECRET", "change-me-in-production-use-long-random-string")
 JWT_ALGORITHM = "HS256"
-#JWT_EXPIRE_SECONDS = 86400  # 24 часа
-JWT_EXPIRE_SECONDS = 3
+JWT_EXPIRE_SECONDS = 86400  # 24 часа
+
 
 # ── Приложение ────────────────────────────────────────────────────────────────
 
