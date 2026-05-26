@@ -465,7 +465,7 @@ class App:
             encrypted = encrypt_file(raw, session_key)
             enc_key = rsa_encrypt(pub, session_key)
             signature = sign_data(self.private_key, encrypted)
-            bundle = pack_bundle(enc_key, signature, encrypted)
+            bundle = pack_bundle(enc_key, signature, encrypted, os.path.basename(path))
 
             with tempfile.NamedTemporaryFile(suffix=".bin", delete=False) as tmp:
                 tmp.write(bundle)
@@ -528,7 +528,7 @@ class App:
             with open(path, "rb") as f:
                 bundle = f.read()
 
-            enc_key, signature, encrypted = unpack_bundle(bundle)
+            enc_key, signature, encrypted, original_filename = unpack_bundle(bundle)
 
             sender = self.sender_entry.get().strip()
             if sender:
@@ -560,7 +560,10 @@ class App:
             session_key = rsa_decrypt(self.private_key, enc_key)
             decrypted = decrypt_file(encrypted, session_key)
 
-            out_path = os.path.splitext(path)[0] + "_decrypted"
+            if original_filename:
+                out_path = os.path.join(os.path.dirname(path), original_filename)
+            else:
+                out_path = os.path.splitext(path)[0] + "_decrypted"
             with open(out_path, "wb") as f:
                 f.write(decrypted)
 

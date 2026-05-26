@@ -118,20 +118,19 @@ def decrypt_file(data: bytes, key: bytes) -> bytes:
 # Подпись RSA-PSS вычисляется над зашифрованными данными (encrypt-then-sign),
 # что исключает атаки на основе выбранного шифртекста.
 
-def pack_bundle(enc_key: bytes, signature: bytes, encrypted: bytes) -> bytes:
-    """Упаковывает ключ, подпись и зашифрованные данные в один бинарный пакет."""
+def pack_bundle(enc_key: bytes, signature: bytes, encrypted: bytes, filename: str = "") -> bytes:
+    fname_bytes = filename.encode("utf-8")
     return (
         struct.pack(">I", len(enc_key)) + enc_key
         + struct.pack(">I", len(signature)) + signature
+        + struct.pack(">I", len(fname_bytes)) + fname_bytes
         + encrypted
     )
 
 
 def unpack_bundle(bundle: bytes):
-    """Возвращает (enc_key, signature, encrypted)."""
-    # Распаковка: сначала длина enc_key (4 байта), затем enc_key,
-    # затем длина signature (4 байта), затем signature, остальное - encrypted
     offset = 0
+
     enc_key_len = int.from_bytes(bundle[offset:offset + 4], 'big')
     offset += 4
     enc_key = bundle[offset:offset + enc_key_len]
@@ -142,6 +141,11 @@ def unpack_bundle(bundle: bytes):
     signature = bundle[offset:offset + sig_len]
     offset += sig_len
 
+    fname_len = int.from_bytes(bundle[offset:offset + 4], 'big')
+    offset += 4
+    filename = bundle[offset:offset + fname_len].decode("utf-8")
+    offset += fname_len
+
     encrypted = bundle[offset:]
 
-    return enc_key, signature, encrypted
+    return enc_key, signature, encrypted, filename

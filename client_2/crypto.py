@@ -119,20 +119,34 @@ def decrypt_file(data: bytes, key: bytes) -> bytes:
 
 
 # ── Бинарный пакет ────────────────────────────────────────────────────────────
-# Формат: [4B len(enc_key)][enc_key][4B len(sig)][sig][encrypted...]
-
-def pack_bundle(enc_key: bytes, signature: bytes, encrypted: bytes) -> bytes:
+def pack_bundle(enc_key: bytes, signature: bytes, encrypted: bytes, filename: str = "") -> bytes:
+    fname_bytes = filename.encode("utf-8")
     return (
         struct.pack(">I", len(enc_key)) + enc_key
         + struct.pack(">I", len(signature)) + signature
+        + struct.pack(">I", len(fname_bytes)) + fname_bytes
         + encrypted
     )
 
 
 def unpack_bundle(bundle: bytes):
-    off = 0
-    kl = struct.unpack(">I", bundle[off:off + 4])[0]; off += 4
-    enc_key = bundle[off:off + kl]; off += kl
-    sl = struct.unpack(">I", bundle[off:off + 4])[0]; off += 4
-    sig = bundle[off:off + sl]; off += sl
-    return enc_key, sig, bundle[off:]
+    offset = 0
+
+    enc_key_len = int.from_bytes(bundle[offset:offset + 4], 'big')
+    offset += 4
+    enc_key = bundle[offset:offset + enc_key_len]
+    offset += enc_key_len
+
+    sig_len = int.from_bytes(bundle[offset:offset + 4], 'big')
+    offset += 4
+    signature = bundle[offset:offset + sig_len]
+    offset += sig_len
+
+    fname_len = int.from_bytes(bundle[offset:offset + 4], 'big')
+    offset += 4
+    filename = bundle[offset:offset + fname_len].decode("utf-8")
+    offset += fname_len
+
+    encrypted = bundle[offset:]
+
+    return enc_key, signature, encrypted, filename
