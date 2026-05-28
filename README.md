@@ -68,7 +68,8 @@ python app.py
 ## Настройка
  
 1. **Узнайте свой Chat ID** через [@userinfobot](https://t.me/userinfobot).
-2. В клиенте:
+2. **Напишите боту для дальнейшей пересылки зашифрованных файлов** - [@FastSecureFilesBot](https://t.me/userinfobot).
+3. В клиенте:
    - Введите имя и Chat ID → «Зарегистрировать»
    
 ---
